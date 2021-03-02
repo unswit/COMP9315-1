@@ -1,0 +1,168 @@
+-- the input function 'complex_in' takes a null-terminated string (the
+-- textual representation of the type) and turns it into the internal
+-- (in memory) representation. You will get a message telling you 'complex'
+-- does not exist yet but that's okay.
+
+CREATE FUNCTION my_intset_in(cstring)
+   RETURNS intset
+   AS '_OBJWD_/intset'
+   LANGUAGE C IMMUTABLE STRICT;
+
+-- the output function '' takes the internal representation and
+-- converts it into the textual representation.
+
+CREATE FUNCTION my_intset_out(intset)
+   RETURNS cstring
+   AS '_OBJWD_/intset'
+   LANGUAGE C IMMUTABLE STRICT;
+
+-- now, we can create the type. The internallength specifies the size of the
+-- memory block required to hold the type (we need a 8-byte int* and 2 4-byte int).
+
+CREATE TYPE intset (
+   internallength = 16,
+   input = my_intset_in,
+   output = my_intset_out,
+   alignment = int
+);
+
+
+-----------------------------
+-- Creating an operator for the new type:
+--	Let's define an add operator for complex types. Since POSTGRES
+--	supports function overloading, we'll use + as the add operator.
+--	(Operator names can be reused with different numbers and types of
+--	arguments.)
+-----------------------------
+
+-- first, define a function complex_add (also in complex.c)
+CREATE FUNCTION complex_add(complex, complex)
+   RETURNS complex
+   AS '_OBJWD_/complex'
+   LANGUAGE C IMMUTABLE STRICT;
+
+-- we can now define the operator. We show a binary operator here but you
+-- can also define unary operators by omitting either of leftarg or rightarg.
+CREATE OPERATOR + (
+   leftarg = complex,
+   rightarg = complex,
+   procedure = complex_add,
+   commutator = +
+);
+
+
+CREATE FUNCTION my_intersection(intset, intset)
+   RETURNS intset
+   AS '_OBJWD_/intset'
+   LANGUAGE C IMMUTABLE STRICT;
+
+CREATE OPERATOR && (
+   leftarg = intset,
+   rightarg = intset,
+   procedure = my_intersection,
+   commutator = &&
+);
+
+CREATE FUNCTION my_union(intset, intset)
+   RETURNS intset
+   AS '_OBJWD_/intset'
+   LANGUAGE C IMMUTABLE STRICT;
+
+CREATE OPERATOR || (
+   leftarg = intset,
+   rightarg = intset,
+   procedure = my_union,
+   commutator = ||
+);
+
+CREATE FUNCTION my_disjoin(intset, intset)
+   RETURNS intset
+   AS '_OBJWD_/intset'
+   LANGUAGE C IMMUTABLE STRICT;
+
+CREATE OPERATOR !! (
+   leftarg = intset,
+   rightarg = intset,
+   procedure = my_disjoin,
+   commutator = !!
+);
+
+CREATE FUNCTION my_difference(intset, intset)
+   RETURNS intset
+   AS '_OBJWD_/intset'
+   LANGUAGE C IMMUTABLE STRICT;
+
+CREATE OPERATOR - (
+   leftarg = intset,
+   rightarg = intset,
+   procedure = my_difference
+);
+
+CREATE FUNCTION my_intset_size(intset)
+   RETURNS integer
+   AS '_OBJWD_/intset'
+   LANGUAGE C IMMUTABLE STRICT;
+
+CREATE OPERATOR # (
+   rightarg = intset,
+   procedure = my_intset_size
+);
+
+
+CREATE FUNCTION my_inset(integer, intset)
+   RETURNS bool
+   AS '_OBJWD_/intset'
+   LANGUAGE C IMMUTABLE STRICT;
+
+CREATE OPERATOR ? (
+   leftarg = integer,
+   rightarg = intset,
+   procedure = my_inset
+);
+
+CREATE FUNCTION my_superset(intset, intset)
+   RETURNS bool
+   AS '_OBJWD_/intset'
+   LANGUAGE C IMMUTABLE STRICT;
+
+CREATE OPERATOR >@ (
+   leftarg = intset,
+   rightarg = intset,
+   procedure = my_superset
+);
+
+CREATE FUNCTION my_subset(intset, intset)
+   RETURNS bool
+   AS '_OBJWD_/intset'
+   LANGUAGE C IMMUTABLE STRICT;
+
+CREATE OPERATOR @< (
+   leftarg = intset,
+   rightarg = intset,
+   procedure = my_subset
+);
+
+CREATE FUNCTION my_inequal(intset, intset)
+   RETURNS bool
+   AS '_OBJWD_/intset'
+   LANGUAGE C IMMUTABLE STRICT;
+
+CREATE OPERATOR <> (
+   leftarg = intset,
+   rightarg = intset,
+   procedure = my_inequal
+);
+
+CREATE FUNCTION my_equal(intset, intset)
+   RETURNS bool
+   AS '_OBJWD_/intset'
+   LANGUAGE C IMMUTABLE STRICT;
+
+CREATE OPERATOR = (
+   leftarg = intset,
+   rightarg = intset,
+   procedure = my_equal,
+   negator = <>,
+   join = eqjoinsel
+);
+
