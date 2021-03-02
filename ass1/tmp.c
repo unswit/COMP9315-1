@@ -6,35 +6,21 @@
   called by the backend in the process of processing queries.  The calling
   format for these routines is dictated by Postgres architecture.
 ******************************************************************************/
-
-#include "postgres.h"
-
-#include "fmgr.h"
-#include "libpq/pqformat.h"		/* needed for send/recv functions */
-
 /*
- * src/tutorial/complex.c
- *
- ******************************************************************************
-  This file contains routines that can be bound to a Postgres backend and
-  called by the backend in the process of processing queries.  The calling
-  format for these routines is dictated by Postgres architecture.
-******************************************************************************/
-
 #include "postgres.h"
 
 #include "fmgr.h"
 #include "libpq/pqformat.h"		
 
 PG_MODULE_MAGIC;
-
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 const int MY_INT_MAX = 2147483647;
 ////////// ADT session //////////////////////////////////
-struct myVector {
+struct intSet {
     int sz, capacity;
     int *list;
 };
@@ -44,16 +30,8 @@ struct stringBuf {
     char *text;
 };
 
-typedef struct myVector *myVector;
-typedef struct stringBuf *mystring;
-
-struct intSet {
-	int32 vl_len_;
-    int len;
-    int list[FLEXIBLE_ARRAY_MEMBER];
-};
-
 typedef struct intSet *intSet;
+typedef struct stringBuf *mystring;
 
 static mystring newBuf() {
     mystring ret = malloc(sizeof(struct stringBuf));
@@ -80,8 +58,8 @@ static void append(mystring s, char *st) {
     // assert(strlen(s->text) == s->sz);
 }
 
-static myVector newset() {
-    myVector ret = malloc(sizeof(struct myVector));
+static intSet newset() {
+    intSet ret = malloc(sizeof(struct intSet));
     ret->sz = 0;
     ret->capacity = 16;
     ret->list = malloc(ret->capacity * sizeof(int));
@@ -101,7 +79,7 @@ static int my_isdigit(char ch) {
     return ch >= '0' && ch <= '9';
 }
 
-static int myVector_size(myVector s) {
+static int intset_size(intSet s) {
     assert(s != NULL);
     return s->sz;
 }
@@ -112,7 +90,7 @@ static void swap(int *a, int *b) {
     *b = p;
 }
 */
-static int myVector_inSet(myVector s, int val) {
+static int intset_inSet(intSet s, int val) {
     int low = 0, high = s->sz - 1;
     if (s == NULL) return 0;
     while (low <= high) {
@@ -128,7 +106,7 @@ static int myVector_inSet(myVector s, int val) {
     return 0;
 }
 
-static void myVector_insertSet(myVector s, int val) {
+static void intset_insertSet(intSet s, int val) {
     if (s->sz == s->capacity) {
         s->capacity = s->capacity * 2;
         s->list = realloc(s->list, s->capacity * sizeof(int));
@@ -141,7 +119,7 @@ static int cmpfunc (const void * a, const void * b) {
 }
 
 
-static void myVector_normalize(myVector s) {
+static void intset_normalize(intSet s) {
     int i, len;
     int *tmp;
     if (s == NULL || s->sz == 0) return;
@@ -157,12 +135,12 @@ static void myVector_normalize(myVector s) {
     s->capacity = 16;
     s->list = malloc(s->capacity * sizeof(int));
     for (i = 0 ; i < len; ++i) {
-        if (i == 0 || tmp[i] != tmp[i-1]) myVector_insertSet(s, tmp[i]);
+        if (i == 0 || tmp[i] != tmp[i-1]) intset_insertSet(s, tmp[i]);
     }
     free(tmp);
 }
 
-static void clearS(myVector s) {
+static void clearS(intSet s) {
     free(s->list);
     free(s);
 }
@@ -172,7 +150,7 @@ static void clearStr(mystring s) {
     free(s);
 }
 
-static char *print_myVector(myVector s) {
+static char *printSet(intSet s) {
     int i;
     if (s == NULL) {
         return NULL;
@@ -200,12 +178,12 @@ static char *print_myVector(myVector s) {
     }
 }
 
-static myVector get_new(char *s) {
+static intSet get_new(char *s) {
     int i, len, L = 0, R, c1 = 0, c2 = 0;
     char *ss = NULL;
     mystring *vc;
     int tol = 0, valid = 1;
-    myVector ret;
+    intSet ret;
     if (s == NULL) return NULL;
     len = strlen(s), R = len - 1;
     for (i = 0; i < len; ++i) {
@@ -294,7 +272,7 @@ static myVector get_new(char *s) {
     if (valid) {
         for (i = 0 ; i <= tol; ++i) {
             if (vc[i]->sz == 0) continue;
-            if (my_isdigit(vc[i]->text[0])) myVector_insertSet(ret, atoi(vc[i]->text));
+            if (my_isdigit(vc[i]->text[0])) intset_insertSet(ret, atoi(vc[i]->text));
         }
     }
     for (i = 0 ; i < len + 3; ++i) {
@@ -306,133 +284,105 @@ static myVector get_new(char *s) {
         clearS(ret);
         return NULL;
     }
-    myVector_normalize(ret);
+    intset_normalize(ret);
     return ret;
 }
 
-static myVector myVector_unionSet(myVector s1, myVector s2) {
+static intSet intset_unionSet(intSet s1, intSet s2) {
     int i;
-    myVector res;
+    intSet res;
     if (s1 == NULL || s2 == NULL) return NULL;
     res = newset();
     for (i = 0; i < s1->sz; ++i) {
-        myVector_insertSet(res, s1->list[i]);
+        intset_insertSet(res, s1->list[i]);
     }
 
     for (i = 0; i < s2->sz; ++i) {
-        myVector_insertSet(res, s2->list[i]);
+        intset_insertSet(res, s2->list[i]);
     }
 
-    myVector_normalize(res);
+    intset_normalize(res);
     return res;
 }
 
-static myVector myVector_intersectionSet(myVector s1, myVector s2) {
+static intSet intset_intersectionSet(intSet s1, intSet s2) {
     int i;
-    myVector res;
+    intSet res;
     if (s1 == NULL || s2 == NULL) return NULL;
     res = newset();
     for (i = 0; i < s1->sz; ++i) {
-        if (myVector_inSet(s2, s1->list[i])) {
-            myVector_insertSet(res, s1->list[i]);
+        if (intset_inSet(s2, s1->list[i])) {
+            intset_insertSet(res, s1->list[i]);
         }
     }
 
-    myVector_normalize(res);
+    intset_normalize(res);
     return res;
 }
 
-static myVector myVector_disjoin(myVector s1, myVector s2) {
+static intSet intset_disjointSet(intSet s1, intSet s2) {
     int i;
-    myVector res;
+    intSet res;
     if (s1 == NULL || s2 == NULL) return NULL;
     res = newset();
     for (i = 0; i < s1->sz; ++i) {
-        if (!myVector_inSet(s2, s1->list[i])) {
-            myVector_insertSet(res, s1->list[i]);
+        if (!intset_inSet(s2, s1->list[i])) {
+            intset_insertSet(res, s1->list[i]);
         }
     }
 
     for (i = 0; i < s2->sz; ++i) {
-        if (!myVector_inSet(s1, s2->list[i])) {
-            myVector_insertSet(res, s2->list[i]);
+        if (!intset_inSet(s1, s2->list[i])) {
+            intset_insertSet(res, s2->list[i]);
         }
     }
 
-    myVector_normalize(res);
+    intset_normalize(res);
     return res;
 }
 
-static myVector myVector_differenceSet(myVector s1, myVector s2) {
+static intSet intset_differenceSet(intSet s1, intSet s2) {
     int i;
-    myVector res;
+    intSet res;
     if (s1 == NULL || s2 == NULL) return NULL;
     res = newset();
     for (i = 0 ; i < s1->sz; ++i) {
-        if (!myVector_inSet(s2, s1->list[i])) myVector_insertSet(res, s1->list[i]);
+        if (!intset_inSet(s2, s1->list[i])) intset_insertSet(res, s1->list[i]);
     }
 
-    myVector_normalize(res);
+    intset_normalize(res);
     return res;
 }
 
 // check if s1 <= s2
-static int myVector_subset(myVector s1, myVector s2) {
+static int intset_subset(intSet s1, intSet s2) {
     int i;
     if (s1 == NULL || s2 == NULL) return -1;
     for (i = 0 ; i < s1->sz; ++i) {
-        if (!myVector_inSet(s2, s1->list[i])) return 0;
+        if (!intset_inSet(s2, s1->list[i])) return 0;
     }
     return 1;
 }
 
-static int myVector_equal(myVector s1, myVector s2) {
-    return myVector_subset(s1, s2) && myVector_subset(s2, s1);
-}
-
-static intSet vector2Set(myVector s) {
-    intSet ret;
-    int i;
-    if (s == NULL) return NULL;
-    ret = palloc((2 + s->sz) * sizeof(int));
-    SET_VARSIZE(ret, (2 + s->sz) * sizeof(int));
-    ret->len = s->sz;
-    for (i = 0 ; i < ret->len; ++i) {
-        ret->list[i] = s->list[i];
-    }
-    
-    return ret;
-}
-
-static myVector set2Vector(intSet s) {
-    myVector ret;
-    int i;
-    if (s == NULL) return NULL;
-    ret = newset();
-    
-    for (i = 0 ; i < s->len; ++i) myVector_insertSet(ret, s->list[i]);
-    myVector_normalize(ret);
-    return ret;
+static int intset_equal(intSet s1, intSet s2) {
+    return intset_subset(s1, s2) && intset_subset(s2, s1);
 }
 
 ////////////////////// the below session is used for interaction ///////////
-
+/*
 // read in
 PG_FUNCTION_INFO_V1(my_intset_in);
 Datum
 my_intset_in(PG_FUNCTION_ARGS) {
     char *str = PG_GETARG_CSTRING(0);
-    myVector res = get_new(str);
-    intSet ret;
-    if (res == NULL) {
+    intSet ret = get_new(str);
+    if (ret == NULL) {
         ereport(ERROR,
 				(errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
 				 errmsg("invalid input syntax for type %s: \"%s\"",
 						"intset", str)));
     }
 
-    ret = vector2Set(res);
-    clearS(res);
     PG_RETURN_POINTER(ret);
 }
 
@@ -442,9 +392,7 @@ Datum
 my_intset_out(PG_FUNCTION_ARGS)
 {
 	intSet ret = (intSet) PG_GETARG_POINTER(0);
-    myVector vc = set2Vector(ret);
-	char *result = print_myVector(vc);
-    clearS(vc);
+	char *result = printSet(ret);
 	PG_RETURN_CSTRING(result);
 }
 
@@ -454,9 +402,7 @@ Datum
 my_intset_size(PG_FUNCTION_ARGS)
 {
 	intSet  a = (intSet) PG_GETARG_POINTER(0);
-    int ret = 0;
-    if (a != NULL) ret = a->len;
-	PG_RETURN_INT32(ret);
+	PG_RETURN_INT32(intset_size(a));
 }
 
 
@@ -467,10 +413,7 @@ my_inset(PG_FUNCTION_ARGS)
 {
     int i = PG_GETARG_INT32(0);
 	intSet a = (intSet) PG_GETARG_POINTER(1);
-	myVector vc = set2Vector(a);
-    bool ret = myVector_inSet(vc, i);
-    clearS(vc);
-    PG_RETURN_BOOL(ret);
+	PG_RETURN_BOOL(intset_inSet(a, i));
 }
 
 
@@ -481,11 +424,7 @@ my_superset(PG_FUNCTION_ARGS)
 {
 	intSet  a = (intSet) PG_GETARG_POINTER(0);
     intSet  b = (intSet) PG_GETARG_POINTER(1);
-    myVector v1 = set2Vector(a), v2 = set2Vector(b);
-    bool ret = myVector_subset(v2, v1);
-    clearS(v1);
-    clearS(v2);
-	PG_RETURN_BOOL(ret);
+	PG_RETURN_BOOL(intset_subset(b, a));
 }
 
 // check if a is a superset of b
@@ -495,11 +434,7 @@ my_subset(PG_FUNCTION_ARGS)
 {
 	intSet  a = (intSet) PG_GETARG_POINTER(0);
     intSet  b = (intSet) PG_GETARG_POINTER(1);
-    myVector v1 = set2Vector(a), v2 = set2Vector(b);
-    bool ret = myVector_subset(v1, v2);
-    clearS(v1);
-    clearS(v2);
-	PG_RETURN_BOOL(ret);
+	PG_RETURN_BOOL(intset_subset(a, b));
 }
 
 // check equal
@@ -509,11 +444,7 @@ my_equal(PG_FUNCTION_ARGS)
 {
 	intSet  a = (intSet) PG_GETARG_POINTER(0);
     intSet  b = (intSet) PG_GETARG_POINTER(1);
-    myVector v1 = set2Vector(a), v2 = set2Vector(b);
-    bool ret = myVector_equal(v1, v2);
-    clearS(v1);
-    clearS(v2);
-	PG_RETURN_BOOL(ret);
+	PG_RETURN_BOOL(intset_equal(a, b));
 }
 
 PG_FUNCTION_INFO_V1(my_inequal);
@@ -522,11 +453,7 @@ my_inequal(PG_FUNCTION_ARGS)
 {
 	intSet  a = (intSet) PG_GETARG_POINTER(0);
     intSet  b = (intSet) PG_GETARG_POINTER(1);
-    myVector v1 = set2Vector(a), v2 = set2Vector(b);
-    bool ret = !myVector_equal(v1, v2);
-    clearS(v1);
-    clearS(v2);
-	PG_RETURN_BOOL(ret);
+	PG_RETURN_BOOL(!intset_equal(a, b));
 }
 
 // a && b
@@ -536,12 +463,7 @@ my_intersection(PG_FUNCTION_ARGS)
 {
 	intSet  a = (intSet) PG_GETARG_POINTER(0);
     intSet  b = (intSet) PG_GETARG_POINTER(1);
-    myVector v1 = set2Vector(a), v2 = set2Vector(b), v3 = myVector_intersectionSet(v1, v2);
-	intSet res = vector2Set(v3);
-    clearS(v1);
-    clearS(v2);
-    clearS(v3);
-    PG_RETURN_POINTER(res);
+	PG_RETURN_POINTER(intset_intersectionSet(a, b));
 }
 
 // a V b
@@ -551,12 +473,7 @@ my_union(PG_FUNCTION_ARGS)
 {
 	intSet  a = (intSet) PG_GETARG_POINTER(0);
     intSet  b = (intSet) PG_GETARG_POINTER(1);
-    myVector v1 = set2Vector(a), v2 = set2Vector(b), v3 = myVector_unionSet(v1, v2);
-	intSet res = vector2Set(v3);
-    clearS(v1);
-    clearS(v2);
-    clearS(v3);
-    PG_RETURN_POINTER(res);
+	PG_RETURN_POINTER(intset_unionSet(a, b));
 }
 
 // (a - b) V (b - a)
@@ -566,12 +483,7 @@ my_disjoin(PG_FUNCTION_ARGS)
 {
 	intSet  a = (intSet) PG_GETARG_POINTER(0);
     intSet  b = (intSet) PG_GETARG_POINTER(1);
-    myVector v1 = set2Vector(a), v2 = set2Vector(b), v3 = myVector_disjoin(v1, v2);
-	intSet res = vector2Set(v3);
-    clearS(v1);
-    clearS(v2);
-    clearS(v3);
-    PG_RETURN_POINTER(res);
+	PG_RETURN_POINTER(intset_disjointSet(a, b));
 }
 
 // a - b
@@ -581,10 +493,12 @@ my_difference(PG_FUNCTION_ARGS)
 {
 	intSet  a = (intSet) PG_GETARG_POINTER(0);
     intSet  b = (intSet) PG_GETARG_POINTER(1);
-    myVector v1 = set2Vector(a), v2 = set2Vector(b), v3 = myVector_differenceSet(v1, v2);
-	intSet res = vector2Set(v3);
-    clearS(v1);
-    clearS(v2);
-    clearS(v3);
-    PG_RETURN_POINTER(res);
+	PG_RETURN_POINTER(intset_differenceSet(a, b));
+}
+
+*/
+
+int main() {
+
+    return 0;
 }

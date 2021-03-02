@@ -20,7 +20,7 @@ CREATE FUNCTION my_intset_out(intset)
 -- memory block required to hold the type (we need a 8-byte int* and 2 4-byte int).
 
 CREATE TYPE intset (
-   internallength = 16,
+   internallength = VARIABLE,
    input = my_intset_in,
    output = my_intset_out,
    alignment = int
