@@ -153,10 +153,7 @@ void getBits(Page p, Offset pos, Bits b)
 {
 	//TODO
 	//don't know if we need to assert
-	int i;
-	for (i = 0 ; i < b->nbytes; ++i) {
-		b->bitstring[i] = *addrInPage(p, pos + i, sizeof(Byte));	
-	}
+	memcpy(b->bitstring, addrInPage(p, pos, sizeof(Byte)), b->nbytes);
 }
 
 // copy the bit-string array in a BitsRep
@@ -166,11 +163,8 @@ void putBits(Page p, Offset pos, Bits b)
 {
 	//TODO
 	// again don't know if we need to throw assertion error
-	int i;
-	for (i = 0 ; i < b->nbytes; ++i) {
-		Byte *ret = addrInPage(p, pos + i, sizeof(Byte));	
-		*ret = b->bitstring[i];
-	}
+	Byte *ret = addrInPage(p, pos, sizeof(Byte));
+	memcpy(ret, b->bitstring, b->nbytes);
 }
 
 // show Bits on stdout
