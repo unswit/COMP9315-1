@@ -66,6 +66,7 @@ Status putPage(File f, PageID pid, Page p)
 	assert(ok >= 0);
 	int n = write(f, p, PAGESIZE);
 	assert(n == PAGESIZE);
+	//printf("we get here\n");
 	free(p);
 	return 0;
 }

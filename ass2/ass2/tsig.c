@@ -15,7 +15,7 @@ static Bits codeword(char *attr_val, int m, int k) {
 	unsetAllBits(ret);
 	if (attr_val == NULL || strlen(attr_val) == 0 || attr_val[0] == '?') return ret;
 	int  nbits = 0;   // count of set bits
-    srandom(hash_any(attr_value, strlen(attr_value)));
+    srandom(hash_any(attr_val, strlen(attr_val)));
     while (nbits < k) {
 		int i = random() % m;
 		if (!bitIsSet(ret, i)) {
@@ -29,6 +29,7 @@ static Bits codeword(char *attr_val, int m, int k) {
 // make a tuple signature
 Bits makeTupleSig(Reln r, Tuple t)
 {
+    //printf("enter tuple\n");
 	assert(r != NULL && t != NULL);
 	int i, j, m = tsigBits(r), k = codeBits(r);
 	Bits ret = newBits(m);
@@ -37,8 +38,8 @@ Bits makeTupleSig(Reln r, Tuple t)
 		char **attval = tupleVals(r, t);
 		int currbit = 0;
 		for (i = 0 ; i < nAttrs(r); ++i) {
-			int x = m / nAttrs(r) + (i == 0 ? m % nAttrs(r));
-			Bits curr = codeword(attval, x, x / 2);
+			int x = m / nAttrs(r) + (i == 0 ? m % nAttrs(r) : 0);
+			Bits curr = codeword(attval[i], x, x / 2);
 			for (j = 0 ; j < x; ++j) {
 				if (bitIsSet(curr, j)) setBit(ret, currbit);
 				currbit++;
@@ -46,16 +47,17 @@ Bits makeTupleSig(Reln r, Tuple t)
 			freeBits(curr);
 		}
 		freeVals(attval, nAttrs(r));
+		free(attval);
 	} else {
 		char **attval = tupleVals(r, t);
 		for (i = 0 ; i < nAttrs(r); ++i) {
-			Bits curr = codeword(attval, m, k);
-			ret = orBits(ret, curr);
+			Bits curr = codeword(attval[i], m, k);
+			orBits(ret, curr);
 			freeBits(curr);
 		}
 		freeVals(attval, nAttrs(r));
+		free(attval);
 	}
-
 	return ret;
 }
 
@@ -69,11 +71,13 @@ void findPagesUsingTupSigs(Query q)
 	Bits querysig = makeTupleSig(q->rel, q->qstring);
 	int i, j;
 	PageID p = 0, itemid = 0;
+	printf("%d\n", nTsigPages(q->rel));
 	for (i = 0 ; i < nTsigPages(q->rel); ++i) {
 		Page tsig = getPage(q->rel->tsigf, i);
 		for (j = 0 ; j < pageNitems(tsig); ++j) {
 			Bits curr = newBits(q->rel->params.tm);
 			getBits(tsig, j, curr);
+			// showBits(curr);
 			if (isSubset(curr, querysig) && isSubset(querysig, curr)) {
 				PageID pid = p;
 				setBit(q->pages, pid);
@@ -89,5 +93,5 @@ void findPagesUsingTupSigs(Query q)
 	}
 	// The printf below is primarily for debugging
 	// Remove it before submitting this function
-	//printf("Matched Pages:"); showBits(q->pages); putchar('\n');
+	// printf("Matched Pages:"); showBits(q->pages); putchar('\n');
 }

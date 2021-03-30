@@ -111,12 +111,6 @@ void closeRelation(Reln r)
 	free(r);
 }
 
-static void addSigToPage(Reln r, Page p, Bits t) {
-	int offset = pageNitems(p);
-	putBits(p, offset, t);
-	addOneItem(p);
-}
-
 // insert a new tuple into a relation
 // returns page where inserted
 // returns NO_PAGE if insert fails completely
@@ -126,7 +120,6 @@ PageID addToRelation(Reln r, Tuple t)
 	assert(r != NULL && t != NULL && strlen(t) == tupSize(r));
 	Page p;  PageID pid;
 	RelnParams *rp = &(r->params);
-	
 	// add tuple to last page
 	pid = rp->npages-1;
 	p = getPage(r->dataf, pid);
@@ -142,25 +135,26 @@ PageID addToRelation(Reln r, Tuple t)
 	addTupleToPage(r, p, t);
 	rp->ntups++;  //written to disk in closeRelation()
 	putPage(r->dataf, pid, p);
-
 	// compute tuple signature and add to tsigf
 	//TODO
-	pid = rp->tsigNpages - 1;
-    p = getPage(r->tsigf, pid);
-	rp->ntsigs++;
+	
+	PageID sigid = rp->tsigNpages - 1;
+    Page tsigp = getPage(r->tsigf, sigid);
+	Bits ret = makeTupleSig(r, t);
 	// check if room on the last page, if not add new page
-	if (nTsigs(p) == rp->tsigPP) {
+	if (pageNitems(tsigp) == rp->tsigPP) {
 		addPage(r->tsigf);
 		rp->tsigNpages++;
-		pid++;
-		free(p);
-		p = newPage();
-		if (p == NULL) return NO_PAGE;
+		sigid++;
+		free(tsigp);
+		tsigp = newPage();
+		if (tsigp == NULL) return NO_PAGE;
 	}
-	Bits ret = makeTupleSig(r, t);
-	addSigToPage(r, p, ret);
-	putPage(r->tsigf, pid, p);
 	
+	putBits(tsigp, pageNitems(tsigp), ret);
+	addOneItem(tsigp);
+	rp->ntsigs++;
+	putPage(r->tsigf, sigid, tsigp);
 	// compute page signature and add to psigf
 	//TODO
 
