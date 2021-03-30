@@ -19,6 +19,7 @@ typedef struct _BitsRep {
 } BitsRep;
 
 static int getchunk(int position) {
+    // printf("operation\n");
 	return position >> 3;
 }
 
@@ -30,6 +31,7 @@ static int getbitpos(int position) {
 
 Bits newBits(int nbits)
 {
+    //printf("here\n");
 	Count nbytes = iceil(nbits,8);
 	Bits new = malloc(2*sizeof(Count) + nbytes);
 	new->nbits = nbits;
@@ -49,11 +51,16 @@ void freeBits(Bits b)
 
 Bool bitIsSet(Bits b, int position)
 {
+    //printf("isset\n");
 	int chunk = getchunk(position), pos = getbitpos(position);
 	assert(b != NULL);
 	assert(0 <= position && position < b->nbits);
 	//TODO
-	if ((b->bitstring[chunk] & (1 << pos)) > 0) return TRUE;
+	if ((b->bitstring[chunk] & (1 << pos)) > 0) {
+		//printf("ok\n");	
+		return TRUE;
+	}
+	//printf("ok\n");
     return FALSE;
 }
 
@@ -153,7 +160,9 @@ void getBits(Page p, Offset pos, Bits b)
 {
 	//TODO
 	//don't know if we need to assert
+	//printf("enter here 2\n");
 	memcpy(b->bitstring, addrInPage(p, pos, sizeof(Byte)), b->nbytes);
+	//printf("exit 2\n");
 }
 
 // copy the bit-string array in a BitsRep
@@ -163,8 +172,10 @@ void putBits(Page p, Offset pos, Bits b)
 {
 	//TODO
 	// again don't know if we need to throw assertion error
+	//printf("enter here\n");
 	Byte *ret = addrInPage(p, pos, sizeof(Byte));
 	memcpy(ret, b->bitstring, b->nbytes);
+	//printf("exit\n");
 }
 
 // show Bits on stdout

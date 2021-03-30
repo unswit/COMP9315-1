@@ -54,14 +54,17 @@ Query startQuery(Reln r, char *q, char sigs)
 
 void scanAndDisplayMatchingTuples(Query q)
 {
+    //printf("into scan\n");
 	int i, j, hastuple = 0;
 	assert(q != NULL);
+	// printf("%d\n", nPages(q->rel));
 	for (i = 0 ; i < nPages(q->rel); ++i) {
 		q->curpage = i;
 		hastuple = 0;	
 		if (!bitIsSet(q->pages, i)) continue;
 		File f = dataFile(q->rel);
 		Page current = getPage(f, i);
+		// printf("%d\n", pageNitems(current));
 		for (j = 0 ; j < pageNitems(current); ++j) {
 			Tuple tp = getTupleFromPage(q->rel, current, j);
 			if (tupleMatch(q->rel, tp, q->qstring)) {
@@ -73,6 +76,7 @@ void scanAndDisplayMatchingTuples(Query q)
 		q->ntuppages++;
 		if (!hastuple) q->nfalse++;
 	}
+	//printf("yes\n");
 }
 
 // print statistics on query
