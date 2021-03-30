@@ -161,7 +161,7 @@ void getBits(Page p, Offset pos, Bits b)
 	//TODO
 	//don't know if we need to assert
 	//printf("enter here 2\n");
-	memcpy(b->bitstring, addrInPage(p, pos, sizeof(Byte)), b->nbytes);
+	memcpy(b->bitstring, addrInPage(p, pos, sizeof(Byte) * b->nbytes), b->nbytes);
 	//printf("exit 2\n");
 }
 
@@ -173,7 +173,7 @@ void putBits(Page p, Offset pos, Bits b)
 	//TODO
 	// again don't know if we need to throw assertion error
 	//printf("enter here\n");
-	Byte *ret = addrInPage(p, pos, sizeof(Byte));
+	Byte *ret = addrInPage(p, pos, sizeof(Byte) * b->nbytes);
 	memcpy(ret, b->bitstring, b->nbytes);
 	//printf("exit\n");
 }
