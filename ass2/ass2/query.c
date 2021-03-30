@@ -59,7 +59,7 @@ void scanAndDisplayMatchingTuples(Query q)
 	assert(q != NULL);
 	// printf("%d\n", nPages(q->rel));
 	for (i = 0 ; i < nPages(q->rel); ++i) {
-		q->curpage = i;
+		// q->curpage = i;
 		hastuple = 0;	
 		if (!bitIsSet(q->pages, i)) continue;
 		File f = dataFile(q->rel);
