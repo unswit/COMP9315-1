@@ -35,6 +35,7 @@ Bits makeTupleSig(Reln r, Tuple t)
 	Bits ret = newBits(m);
 	unsetAllBits(ret);
 	if (r->params.sigtype == 'c') {
+	    // printf("enter here\n");
 		char **attval = tupleVals(r, t);
 		int currbit = 0;
 		for (i = 0 ; i < nAttrs(r); ++i) {
