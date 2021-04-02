@@ -160,12 +160,15 @@ PageID addToRelation(Reln r, Tuple t)
 	putPage(r->tsigf, sigid, tsigp);
 	// compute page signature and add to psigf
 	//TODO
-    
+    //printf("here\n");
 	Bits retp = makePageSig(r, t);
-    if (adddatapage == 1) {
+	// we need to add a new entry
+	//printf("%d\n", nPsigs(r));
+    if (adddatapage == 1 || nPsigs(r) == 0) {
+        //printf("bad case\n");
 		Page lst = getPage(r->psigf, nPsigPages(r) - 1);
         // if we need to add a new page signature page
-		if (maxTsigsPP(r) == pageNitems(lst)) {
+		if (maxPsigsPP(r) == pageNitems(lst)) {
             addPage(r->psigf);
 			rp->psigNpages++;
 			free(lst);
@@ -180,15 +183,23 @@ PageID addToRelation(Reln r, Tuple t)
 	} else {
 		// we need to grab the last entry of the page signature
 		// and merge the bitmask with retp
+		//printf("second case %d\n", nPsigPages(r) - 1);
 		Page lst = getPage(r->psigf, nPsigPages(r) - 1);
+		//printf("1\n");
 		Bits curr = newBits(rp->pm);
+        //printf("2\n");
         getBits(lst, pageNitems(lst) - 1, curr);
+        //printf("3\n");
         orBits(curr, retp);
+		//printf("4\n");
 		putBits(lst, pageNitems(lst) - 1, curr);
+		//printf("5 %d\n", rp->psigNpages - 1);
+		//showBits(curr);
 		putPage(r->psigf, rp->psigNpages - 1, lst);
+		//printf("6\n");
 		freeBits(retp);
 	}
-    
+    // printf("success\n");
 	// use page signature to update bit-slices
 
 	//TODO
