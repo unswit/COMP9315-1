@@ -34,5 +34,9 @@ int main(int argc, char **argv)
 	setBit(b, 59);
 	shiftBits(b, 5);
 	showBits(b);
+	printf("\n");
+	shiftBits(b, -6);
+	showBits(b);
+	printf("\n");
 	return 0;
 }
