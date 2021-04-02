@@ -67,7 +67,7 @@ void findPagesUsingPageSigs(Query q)
 	for (i = 0 ; i < nPsigPages(q->rel); ++i) {
 		Page psig = getPage(q->rel->psigf, i);
 		for (j = 0 ; j < pageNitems(psig); ++j) {
-			Bits curr = newPage(psigBits(q->rel));
+			Bits curr = newBits(psigBits(q->rel));
 			getBits(psig, j, curr);
 			if (isSubset(querysig, curr)) {
 				setBit(q->pages, q->nsigs);
