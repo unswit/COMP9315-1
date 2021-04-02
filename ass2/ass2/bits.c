@@ -165,8 +165,8 @@ void shiftBits(Bits b, int n)
 		}
 	} else {
 		for (i = 0; i < b->nbits; ++i) {
-			if (i + n < b->nbits) {
-				if (bitIsSet(b, i + n)) {
+			if (i - n < b->nbits) {
+				if (bitIsSet(b, i - n)) {
 					setBit(b, i);
 				} else {
 					unsetBit(b, i);
