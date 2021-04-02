@@ -147,6 +147,38 @@ void orBits(Bits b1, Bits b2)
 }
 
 
+void shiftBits(Bits b, int n)
+{
+	int i;
+    assert(b != NULL);
+	if (n == 0) return;
+	if (n > 0) {
+		for (i = b->nbits - 1; i >= 0; --i) {
+			if (i < n) unsetBit(b, i);
+			if (i >= n) {
+				if (bitIsSet(b, i - n)) {
+					setBit(b, i);
+				} else {
+					unsetBit(b, i);
+				}
+			}
+		}
+	} else {
+		for (i = 0; i < b->nbits; ++i) {
+			if (i + n < b->nbits) {
+				if (bitIsSet(b, i + n)) {
+					setBit(b, i);
+				} else {
+					unsetBit(b, i);
+				}
+			} else {
+				unsetBit(b, i);
+			}
+		}
+	}
+}
+
+
 // get a bit-string (of length b->nbytes)
 // from specified position in Page buffer
 // and place it in a BitsRep structure

@@ -26,5 +26,13 @@ int main(int argc, char **argv)
 	if (bitIsSet(b,40)) printf("Bit 40 is set\n");
 	if (bitIsSet(b,50)) printf("Bit 50 is set\n");
 	setBit(b, 59);
+	unsetAllBits(b);
+	setBit(b, 10);
+	setBit(b, 15);
+	setBit(b, 1);
+	setBit(b, 5);
+	setBit(b, 59);
+	shiftBits(b, 5);
+	showBits(b);
 	return 0;
 }

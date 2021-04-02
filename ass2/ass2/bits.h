@@ -21,6 +21,7 @@ void unsetBit(Bits, int);
 void unsetAllBits(Bits);
 void andBits(Bits, Bits);
 void orBits(Bits, Bits);
+void shiftBits(Bits b, int n);
 void getBits(Page, Offset, Bits);
 void putBits(Page, Offset, Bits);
 void showBits(Bits);
