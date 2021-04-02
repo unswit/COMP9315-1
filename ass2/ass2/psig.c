@@ -42,7 +42,7 @@ Bits makePageSig(Reln r, Tuple t)
 		int currbit = 0;
 		for (i = 0 ; i < nAttrs(r); ++i) {
 			int x = mp / nAttrs(r) + (i == 0 ? mp % nAttrs(r) : 0);
-			Bits curr = codeword(attval[i], x, x / 2);
+			Bits curr = codeword(vals[i], x, x / 2);
 			for (j = 0 ; j < x; ++j) {
 				if (bitIsSet(curr, j)) setBit(ret, currbit);
 				currbit++;
@@ -62,13 +62,12 @@ void findPagesUsingPageSigs(Query q)
 	unsetAllBits(q->pages);
 	Bits querysig = makePageSig(q->rel, q->qstring);
 	int i, j;
-	PageID p = 0, itemid = 0;
 	q->nsigpages = 0;
 	q->nsigs = 0;
 	for (i = 0 ; i < nPsigPages(q->rel); ++i) {
 		Page psig = getPage(q->rel->psigf, i);
 		for (j = 0 ; j < pageNitems(psig); ++j) {
-			Bits curr = newPage(psigBits(r->rel));
+			Bits curr = newPage(psigBits(q->rel));
 			getBits(psig, j, curr);
 			if (isSubset(querysig, curr)) {
 				setBit(q->pages, q->nsigs);
