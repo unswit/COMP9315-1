@@ -5,6 +5,7 @@
 #include "defs.h"
 #include "reln.h"
 #include "query.h"
+#include "hash.h"
 #include "psig.h"
 
 static Bits codeword(char *attr_val, int m, int k) {
@@ -69,7 +70,7 @@ void findPagesUsingPageSigs(Query q)
 		for (j = 0 ; j < pageNitems(psig); ++j) {
 			Bits curr = newPage(psigBits(r->rel));
 			getBits(psig, j, curr);
-			if (isSubset(q->qstring, curr)) {
+			if (isSubset(querysig, curr)) {
 				setBit(q->pages, q->nsigs);
 			}
 			q->nsigs++;
