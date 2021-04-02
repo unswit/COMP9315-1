@@ -10,6 +10,7 @@
 #include "page.h"
 #include "tuple.h"
 #include "tsig.h"
+#include "psig.h"
 #include "bits.h"
 #include "hash.h"
 
@@ -120,6 +121,7 @@ PageID addToRelation(Reln r, Tuple t)
 	assert(r != NULL && t != NULL && strlen(t) == tupSize(r));
 	Page p;  PageID pid;
 	RelnParams *rp = &(r->params);
+	int adddatapage = 0;
 	// add tuple to last page
 	pid = rp->npages-1;
 	p = getPage(r->dataf, pid);
@@ -128,6 +130,7 @@ PageID addToRelation(Reln r, Tuple t)
 		addPage(r->dataf);
 		rp->npages++;
 		pid++;
+		adddatapage = 1;
 		free(p);
 		p = newPage();
 		if (p == NULL) return NO_PAGE;
@@ -157,7 +160,35 @@ PageID addToRelation(Reln r, Tuple t)
 	putPage(r->tsigf, sigid, tsigp);
 	// compute page signature and add to psigf
 	//TODO
-
+    
+	Bits retp = makePageSig(r, t);
+    if (adddatapage == 1) {
+		Page lst = getPage(r->psigf, nPsigPages(r) - 1);
+        // if we need to add a new page signature page
+		if (maxTsigsPP(r) == pageNitems(lst)) {
+            addPage(r->psigf);
+			rp->psigNpages++;
+			free(lst);
+			lst = newPage();
+			if (lst == NULL) return NO_PAGE;
+		}
+		// we increment the number of page signatures by 1
+		rp->npsigs++;
+		putBits(lst, pageNitems(lst), retp);
+		addOneItem(lst);
+		putPage(r->psigf, rp->psigNpages - 1, lst);
+	} else {
+		// we need to grab the last entry of the page signature
+		// and merge the bitmask with retp
+		Page lst = getPage(r->psigf, nPsigPages(r) - 1);
+		Bits curr = newBits(rp->pm);
+        getBits(lst, pageNitems(lst) - 1, curr);
+        orBits(curr, retp);
+		putBits(lst, pageNitems(lst) - 1, curr);
+		putPage(r->psigf, rp->psigNpages - 1, lst);
+		freeBits(retp);
+	}
+    
 	// use page signature to update bit-slices
 
 	//TODO
