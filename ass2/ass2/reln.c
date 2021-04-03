@@ -63,7 +63,6 @@ Status newRelation(char *name, Count nattrs, float pF, char sigtype,
 	// Create a file containing "pm" all-zeroes bit-strings,
     // each of which has length "bm" bits
 	//TODO
-	int i;
 	for (i = 0 ; i < psigBits(r); ++i) {
 		// time to add a new page
 		Bits curr = newBits(bsigBits(r));
@@ -74,7 +73,7 @@ Status newRelation(char *name, Count nattrs, float pF, char sigtype,
 		}
 		int pid = i / maxBsigsPP(r), offset = i % maxBsigsPP(r);
 		Page p = getPage(r->bsigf, pid);
-		putBits(pid, offset, curr);
+		putBits(p, offset, curr);
 		addOneItem(p);
 		putPage(r->bsigf, pid, p);
 	}
