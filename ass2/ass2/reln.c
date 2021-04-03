@@ -32,6 +32,7 @@ File openFile(char *name, char *suffix)
 Status newRelation(char *name, Count nattrs, float pF, char sigtype,
                    Count tk, Count tm, Count pm, Count bm)
 {
+	int i;
 	Reln r = malloc(sizeof(RelnRep));
 	RelnParams *p = &(r->params);
 	assert(r != NULL);
@@ -62,6 +63,21 @@ Status newRelation(char *name, Count nattrs, float pF, char sigtype,
 	// Create a file containing "pm" all-zeroes bit-strings,
     // each of which has length "bm" bits
 	//TODO
+	int i;
+	for (i = 0 ; i < psigBits(r); ++i) {
+		// time to add a new page
+		Bits curr = newBits(bsigBits(r));
+		unsetAllBits(curr);
+		if (i % maxBsigsPP(r) == 0 && i != 0) {
+			addPage(r->bsigf);
+            p->bsigNpages++;
+		}
+		int pid = i / maxBsigsPP(r), offset = i % maxBsigsPP(r);
+		Page p = getPage(r->bsigf, pid);
+		putBits(pid, offset, curr);
+		addOneItem(p);
+		putPage(r->bsigf, pid, p);
+	}
 	closeRelation(r);
 	return 0;
 }
@@ -201,9 +217,26 @@ PageID addToRelation(Reln r, Tuple t)
 	}
     // printf("success\n");
 	// use page signature to update bit-slices
-
 	//TODO
-
+    
+	// at this point this variable is updated correctly
+    int i;
+	Page bsigp = getPage(r->psigf, nPsigPages(r));
+	int lstid = pageNitems(bsigp) - 1;
+	// get the page signature for the last page
+	Bits bp = newBits(psigBits(r));
+	getBits(bsigp, lstid, bp);
+	for (i = 0 ; i < psigBits(r); ++i) {
+		int bpid = i / maxBsigsPP(r), offset = i % maxBsigsPP(r);
+		Bits curr = newBits(maxBsigsPP(r));
+		Page currp = getPage(r->bsigf, bpid);
+		getBits(currp, offset, curr);
+		if (bitIsSet(bp, i)) {
+			setBit(curr, nPages(r) - 1);
+			putBits(p, offset, curr);
+			putPage(r->bsigf, bpid, currp);
+		}
+	}
 	return nPages(r)-1;
 }
 
