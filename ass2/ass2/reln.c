@@ -72,10 +72,11 @@ Status newRelation(char *name, Count nattrs, float pF, char sigtype,
             p->bsigNpages++;
 		}
 		int pid = i / maxBsigsPP(r), offset = i % maxBsigsPP(r);
-		Page p = getPage(r->bsigf, pid);
-		putBits(p, offset, curr);
-		addOneItem(p);
-		putPage(r->bsigf, pid, p);
+		Page pp = getPage(r->bsigf, pid);
+		putBits(pp, offset, curr);
+		addOneItem(pp);
+		putPage(r->bsigf, pid, pp);
+		p->nbsigs++;
 	}
 	closeRelation(r);
 	return 0;
@@ -133,6 +134,7 @@ void closeRelation(Reln r)
 
 PageID addToRelation(Reln r, Tuple t)
 {
+    // printf("enter\n");
 	assert(r != NULL && t != NULL && strlen(t) == tupSize(r));
 	Page p;  PageID pid;
 	RelnParams *rp = &(r->params);
@@ -220,22 +222,27 @@ PageID addToRelation(Reln r, Tuple t)
     
 	// at this point this variable is updated correctly
     int i;
-	Page bsigp = getPage(r->psigf, nPsigPages(r));
+    Page bsigp = getPage(r->psigf, nPsigPages(r) - 1);
 	int lstid = pageNitems(bsigp) - 1;
 	// get the page signature for the last page
 	Bits bp = newBits(psigBits(r));
 	getBits(bsigp, lstid, bp);
+	// printf("%d\n", psigBits(r));
 	for (i = 0 ; i < psigBits(r); ++i) {
-		int bpid = i / maxBsigsPP(r), offset = i % maxBsigsPP(r);
-		Bits curr = newBits(maxBsigsPP(r));
-		Page currp = getPage(r->bsigf, bpid);
-		getBits(currp, offset, curr);
+		//printf("try to get page offset = %d max= %d tol item in page= %d\n", offset, maxBsigsPP(r), pageNitems(currp));
+		//printf("success\n");
 		if (bitIsSet(bp, i)) {
-			setBit(curr, nPages(r) - 1);
-			putBits(p, offset, curr);
+		    int bpid = i / maxBsigsPP(r), offset = i % maxBsigsPP(r);
+		    Bits curr = newBits(bsigBits(r));
+		    Page currp = getPage(r->bsigf, bpid);
+		    getBits(currp, offset, curr);
+			setBit(curr, nPsigs(r) - 1);
+			putBits(currp, offset, curr);
 			putPage(r->bsigf, bpid, currp);
 		}
+		//printf("finish\n");
 	}
+	// printf("finish\n");
 	return nPages(r)-1;
 }
 
