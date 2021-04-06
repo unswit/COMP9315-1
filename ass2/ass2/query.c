@@ -72,9 +72,11 @@ void scanAndDisplayMatchingTuples(Query q)
 				hastuple = 1;
 			}
 			q->ntuples++;
+		    free(tp);
 		}
 		q->ntuppages++;
 		if (!hastuple) q->nfalse++;
+		free(current);
 	}
 	//printf("yes\n");
 }

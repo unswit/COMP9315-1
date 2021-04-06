@@ -31,12 +31,12 @@ Bits makePageSig(Reln r, Tuple t)
 	int i, j, mp = psigBits(r), k = codeBits(r);
 	char **vals = tupleVals(r, t);
 	Bits ret = newBits(mp);
-	unsetAllBits(ret);
+	//unsetAllBits(ret);
 	if (sigType(r) == 's') {
 	    for (i = 0 ; i < nAttrs(r); ++i) {
 			Bits curr = codeword(vals[i], mp, k);
 	        orBits(ret, curr);
-			free(curr);
+			freeBits(curr);
 		}
 	} else {
 		int currbit = 0;
@@ -61,20 +61,23 @@ void findPagesUsingPageSigs(Query q)
 	assert(q != NULL);
 	unsetAllBits(q->pages);
 	Bits querysig = makePageSig(q->rel, q->qstring);
+	Bits curr = newBits(psigBits(q->rel));
 	int i, j;
 	q->nsigpages = 0;
 	q->nsigs = 0;
 	for (i = 0 ; i < nPsigPages(q->rel); ++i) {
 		Page psig = getPage(q->rel->psigf, i);
-		for (j = 0 ; j < pageNitems(psig); ++j) {
-			Bits curr = newBits(psigBits(q->rel));
+		for (j = 0 ; j < pageNitems(psig); ++j) {		
 			getBits(psig, j, curr);
 			if (isSubset(querysig, curr)) {
 				setBit(q->pages, q->nsigs);
 			}
 			q->nsigs++;
 		}
+		free(psig);
 		q->nsigpages++;
 	}
+	freeBits(curr);
+	freeBits(querysig);
 }
 

@@ -70,23 +70,24 @@ void findPagesUsingTupSigs(Query q)
 	assert(q != NULL);
 	//TODO
 	unsetAllBits(q->pages);
+	Bits curr = newBits(tsigBits(q->rel));
 	Bits querysig = makeTupleSig(q->rel, q->qstring);
 	int i, j;
-	PageID p = 0, itemid = 0;
+	// PageID p = 0, itemid = 0;
 	q->nsigpages = 0;
 	q->nsigs = nTsigs(q->rel);
 	for (i = 0 ; i < nTsigPages(q->rel); ++i) {
 		Page tsig = getPage(q->rel->tsigf, i);
 		q->nsigpages++;
 		for (j = 0 ; j < pageNitems(tsig); ++j) {
-			Bits curr = newBits(q->rel->params.tm);
 			getBits(tsig, j, curr);
 			// showBits(curr);
 			if (isSubset(querysig, curr)) {
-				PageID pid = p;
+				PageID pid = (i * maxTsigsPP(q->rel) + j) / maxTupsPP(q->rel);
 				setBit(q->pages, pid);
 			}
-			freeBits(curr);
+			//freeBits(curr);
+			/*
 			itemid++;
 			Page cur = getPage(q->rel->dataf, p);
 			if (itemid == pageNitems(cur)) {
@@ -94,8 +95,13 @@ void findPagesUsingTupSigs(Query q)
 				itemid = 0;
 				//printf("change a new page %d %d\n", p, pageNitems(cur));
 			}
+			free(cur);
+			*/
 		}
+		free(tsig);
 	}
+	freeBits(curr);
+	freeBits(querysig);
 	// The printf below is primarily for debugging
 	// Remove it before submitting this function
 	// printf("Matched Pages:"); showBits(q->pages); putchar('\n');

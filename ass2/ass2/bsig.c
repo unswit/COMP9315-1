@@ -33,7 +33,10 @@ void findPagesUsingBitSlices(Query q)
 			for (j = 0 ; j < nPages(q->rel); ++j) {
 				if (!bitIsSet(cur, j)) unsetBit(q->pages, j);
 			}
+			freeBits(cur);
+			free(p);
 		}
 	}
+	freeBits(curr);
 }
 

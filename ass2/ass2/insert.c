@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 	char err[MAXERRMSG];  // buffer for error messages
 	int verbose;  // show extra info on query progress
 	char *rname;  // name of table/file
-
+    // freopen("R.in", "r", stdin);
 	// process command-line args
 
 	if (argc < 2) fatal(USAGE, "");

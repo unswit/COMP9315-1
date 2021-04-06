@@ -134,11 +134,9 @@ void closeRelation(Reln r)
 
 PageID addToRelation(Reln r, Tuple t)
 {
-    // printf("enter\n");
 	assert(r != NULL && t != NULL && strlen(t) == tupSize(r));
 	Page p;  PageID pid;
 	RelnParams *rp = &(r->params);
-	int adddatapage = 0;
 	// add tuple to last page
 	pid = rp->npages-1;
 	p = getPage(r->dataf, pid);
@@ -147,7 +145,6 @@ PageID addToRelation(Reln r, Tuple t)
 		addPage(r->dataf);
 		rp->npages++;
 		pid++;
-		adddatapage = 1;
 		free(p);
 		p = newPage();
 		if (p == NULL) return NO_PAGE;
@@ -175,14 +172,12 @@ PageID addToRelation(Reln r, Tuple t)
 	addOneItem(tsigp);
 	rp->ntsigs++;
 	putPage(r->tsigf, sigid, tsigp);
+	freeBits(ret);
 	// compute page signature and add to psigf
 	//TODO
-    //printf("here\n");
+    
 	Bits retp = makePageSig(r, t);
-	// we need to add a new entry
-	//printf("%d\n", nPsigs(r));
-    if (adddatapage == 1 || nPsigs(r) == 0) {
-        //printf("bad case\n");
+    if (nPsigs(r) != nPages(r)) {
 		Page lst = getPage(r->psigf, nPsigPages(r) - 1);
         // if we need to add a new page signature page
 		if (maxPsigsPP(r) == pageNitems(lst)) {
@@ -197,52 +192,57 @@ PageID addToRelation(Reln r, Tuple t)
 		putBits(lst, pageNitems(lst), retp);
 		addOneItem(lst);
 		putPage(r->psigf, rp->psigNpages - 1, lst);
+		freeBits(retp);
 	} else {
 		// we need to grab the last entry of the page signature
 		// and merge the bitmask with retp
-		//printf("second case %d\n", nPsigPages(r) - 1);
 		Page lst = getPage(r->psigf, nPsigPages(r) - 1);
-		//printf("1\n");
-		Bits curr = newBits(rp->pm);
-        //printf("2\n");
+		Bits curr = newBits(psigBits(r));
         getBits(lst, pageNitems(lst) - 1, curr);
-        //printf("3\n");
         orBits(curr, retp);
-		//printf("4\n");
 		putBits(lst, pageNitems(lst) - 1, curr);
-		//printf("5 %d\n", rp->psigNpages - 1);
-		//showBits(curr);
 		putPage(r->psigf, rp->psigNpages - 1, lst);
-		//printf("6\n");
 		freeBits(retp);
+		freeBits(curr);
 	}
-    // printf("success\n");
+	
+	
 	// use page signature to update bit-slices
 	//TODO
-    
 	// at this point this variable is updated correctly
-    int i;
+    int i, preid = -1;
     Page bsigp = getPage(r->psigf, nPsigPages(r) - 1);
 	int lstid = pageNitems(bsigp) - 1;
 	// get the page signature for the last page
 	Bits bp = newBits(psigBits(r));
 	getBits(bsigp, lstid, bp);
-	// printf("%d\n", psigBits(r));
+	Page currp = NULL;
+	int cnt = 0;
 	for (i = 0 ; i < psigBits(r); ++i) {
-		//printf("try to get page offset = %d max= %d tol item in page= %d\n", offset, maxBsigsPP(r), pageNitems(currp));
-		//printf("success\n");
 		if (bitIsSet(bp, i)) {
 		    int bpid = i / maxBsigsPP(r), offset = i % maxBsigsPP(r);
+		    if (bpid != preid) {
+		    	if (currp != NULL) {
+		    		putPage(r->bsigf, preid, currp);
+		    		currp = NULL;
+		    	}
+		    	preid = bpid;
+		    	currp = getPage(r->bsigf, bpid);
+		    	cnt++;
+		    }
 		    Bits curr = newBits(bsigBits(r));
-		    Page currp = getPage(r->bsigf, bpid);
 		    getBits(currp, offset, curr);
 			setBit(curr, nPsigs(r) - 1);
 			putBits(currp, offset, curr);
-			putPage(r->bsigf, bpid, currp);
+			freeBits(curr);
 		}
-		//printf("finish\n");
 	}
-	// printf("finish\n");
+	// printf("%d\n", cnt);
+	if (currp != NULL) {
+		putPage(r->bsigf, preid, currp);
+	}
+	freeBits(bp);
+	free(bsigp);
 	return nPages(r)-1;
 }
 

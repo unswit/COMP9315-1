@@ -37,6 +37,7 @@ void addPage(File f)
 	assert(ok >= 0);
 	Page p = newPage();
 	int n = write(f, p, PAGESIZE);
+	free(p);
 	assert(n == PAGESIZE);
 }
 

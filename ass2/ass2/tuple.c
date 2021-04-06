@@ -75,6 +75,8 @@ Bool tupleMatch(Reln r, Tuple t1, Tuple t2)
 		match = FALSE;
 	}
 	freeVals(v1,n); freeVals(v2,n);
+	free(v1);
+	free(v2);
 	return match;
 }
 
