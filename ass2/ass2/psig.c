@@ -1,7 +1,7 @@
 // psig.c ... functions on page signatures (psig's)
 // part of signature indexed files
 // Written by John Shepherd, March 2019
-
+#include <math.h>
 #include "defs.h"
 #include "reln.h"
 #include "query.h"

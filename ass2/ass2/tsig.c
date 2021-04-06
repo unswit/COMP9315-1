@@ -4,6 +4,7 @@
 
 #include <unistd.h>
 #include <string.h>
+#include <math.h>
 #include "defs.h"
 #include "tsig.h"
 #include "reln.h"
@@ -40,7 +41,7 @@ Bits makeTupleSig(Reln r, Tuple t)
 		int currbit = 0;
 		for (i = 0 ; i < nAttrs(r); ++i) {
 			int x = m / nAttrs(r) + (i == 0 ? m % nAttrs(r) : 0);
-			Bits curr = codeword(attval[i], x, x / 2);
+			Bits curr = codeword(attval[i], x, ceil(x / 2));
 			for (j = 0 ; j < x; ++j) {
 				if (bitIsSet(curr, j)) setBit(ret, currbit);
 				currbit++;
