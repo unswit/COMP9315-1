@@ -13,7 +13,7 @@
 
 static Bits codeword(char *attr_val, int m, int k) {
     Bits ret = newBits(m);
-	unsetAllBits(ret);
+	// unsetAllBits(ret);
 	if (attr_val == NULL || strlen(attr_val) == 0 || attr_val[0] == '?') return ret;
 	int  nbits = 0;   // count of set bits
     srandom(hash_any(attr_val, strlen(attr_val)));
@@ -30,18 +30,16 @@ static Bits codeword(char *attr_val, int m, int k) {
 // make a tuple signature
 Bits makeTupleSig(Reln r, Tuple t)
 {
-    //printf("enter tuple\n");
 	assert(r != NULL && t != NULL);
 	int i, j, m = tsigBits(r), k = codeBits(r);
 	Bits ret = newBits(m);
-	unsetAllBits(ret);
+	// unsetAllBits(ret);
 	if (r->params.sigtype == 'c') {
-	    // printf("enter here\n");
 		char **attval = tupleVals(r, t);
 		int currbit = 0;
 		for (i = 0 ; i < nAttrs(r); ++i) {
 			int x = m / nAttrs(r) + (i == 0 ? m % nAttrs(r) : 0);
-			Bits curr = codeword(attval[i], x, ceil(x / 2));
+			Bits curr = codeword(attval[i], x, iceil(x, 2));
 			for (j = 0 ; j < x; ++j) {
 				if (bitIsSet(curr, j)) setBit(ret, currbit);
 				currbit++;
@@ -73,7 +71,6 @@ void findPagesUsingTupSigs(Query q)
 	Bits curr = newBits(tsigBits(q->rel));
 	Bits querysig = makeTupleSig(q->rel, q->qstring);
 	int i, j;
-	// PageID p = 0, itemid = 0;
 	q->nsigpages = 0;
 	q->nsigs = nTsigs(q->rel);
 	for (i = 0 ; i < nTsigPages(q->rel); ++i) {
@@ -81,29 +78,14 @@ void findPagesUsingTupSigs(Query q)
 		q->nsigpages++;
 		for (j = 0 ; j < pageNitems(tsig); ++j) {
 			getBits(tsig, j, curr);
-			// showBits(curr);
 			if (isSubset(querysig, curr)) {
 				PageID pid = (i * maxTsigsPP(q->rel) + j) / maxTupsPP(q->rel);
 				setBit(q->pages, pid);
 			}
-			//freeBits(curr);
-			/*
-			itemid++;
-			Page cur = getPage(q->rel->dataf, p);
-			if (itemid == pageNitems(cur)) {
-				p++;
-				itemid = 0;
-				//printf("change a new page %d %d\n", p, pageNitems(cur));
-			}
-			free(cur);
-			*/
 		}
 		free(tsig);
 	}
 	freeBits(curr);
 	freeBits(querysig);
-	// The printf below is primarily for debugging
-	// Remove it before submitting this function
-	// printf("Matched Pages:"); showBits(q->pages); putchar('\n');
 }
 

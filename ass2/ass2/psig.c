@@ -7,6 +7,7 @@
 #include "query.h"
 #include "hash.h"
 #include "psig.h"
+#include "util.h"
 
 static Bits codeword(char *attr_val, int m, int k) {
     Bits ret = newBits(m);
@@ -42,7 +43,7 @@ Bits makePageSig(Reln r, Tuple t)
 		int currbit = 0;
 		for (i = 0 ; i < nAttrs(r); ++i) {
 			int x = mp / nAttrs(r) + (i == 0 ? mp % nAttrs(r) : 0);
-			Bits curr = codeword(vals[i], x, ceil(x / (2 * maxTupsPP(r))));
+			Bits curr = codeword(vals[i], x, iceil(x, (2 * maxTupsPP(r))));
 			for (j = 0 ; j < x; ++j) {
 				if (bitIsSet(curr, j)) setBit(ret, currbit);
 				currbit++;
