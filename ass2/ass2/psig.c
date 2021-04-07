@@ -10,7 +10,7 @@
 
 static Bits codeword(char *attr_val, int m, int k) {
     Bits ret = newBits(m);
-	unsetAllBits(ret);
+	//unsetAllBits(ret);
 	if (attr_val == NULL || strlen(attr_val) == 0 || attr_val[0] == '?') return ret;
 	int  nbits = 0;   // count of set bits
     srandom(hash_any(attr_val, strlen(attr_val)));

@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 	char err[MAXERRMSG];  // buffer for error messages
 	int verbose;  // show extra info on query progress
 	char *rname;  // name of table/file
-    // freopen("R.in", "r", stdin);
+    freopen("R.in", "r", stdin);
 	// process command-line args
 
 	if (argc < 2) fatal(USAGE, "");
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 
 	Tuple t;  PageID pid;
 	while ((t = readTuple(r,stdin)) != NULL) {
-		//printf("Inserting: "); showTuple(r,t);
+		//printf("Inserting: "); //showTuple(r,t);
 		pid = addToRelation(r,t);
 		if (pid == NO_PAGE) {
 			sprintf(err, "Insert of %s failed\n", t);

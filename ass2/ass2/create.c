@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 	// Process command-line args
 
 	if (argc < 6) fatal(USAGE, "");
-
+    // freopen("R.in", "r", stdin);
     // signature type (simc or catc)
     if ((strcmp(argv[2], "simc") == 0) || (strcmp(argv[2],"catc") == 0)) {
         stype = argv[2][0];

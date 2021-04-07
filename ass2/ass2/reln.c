@@ -173,8 +173,7 @@ PageID addToRelation(Reln r, Tuple t)
 	rp->ntsigs++;
 	putPage(r->tsigf, sigid, tsigp);
 	freeBits(ret);
-	// compute page signature and add to psigf
-	//TODO
+    
     
 	Bits retp = makePageSig(r, t);
     if (nPsigs(r) != nPages(r)) {
@@ -192,7 +191,6 @@ PageID addToRelation(Reln r, Tuple t)
 		putBits(lst, pageNitems(lst), retp);
 		addOneItem(lst);
 		putPage(r->psigf, rp->psigNpages - 1, lst);
-		freeBits(retp);
 	} else {
 		// we need to grab the last entry of the page signature
 		// and merge the bitmask with retp
@@ -202,7 +200,6 @@ PageID addToRelation(Reln r, Tuple t)
         orBits(curr, retp);
 		putBits(lst, pageNitems(lst) - 1, curr);
 		putPage(r->psigf, rp->psigNpages - 1, lst);
-		freeBits(retp);
 		freeBits(curr);
 	}
 	
@@ -210,16 +207,12 @@ PageID addToRelation(Reln r, Tuple t)
 	// use page signature to update bit-slices
 	//TODO
 	// at this point this variable is updated correctly
+	
     int i, preid = -1;
-    Page bsigp = getPage(r->psigf, nPsigPages(r) - 1);
-	int lstid = pageNitems(bsigp) - 1;
-	// get the page signature for the last page
-	Bits bp = newBits(psigBits(r));
-	getBits(bsigp, lstid, bp);
-	Page currp = NULL;
+    Page currp = NULL;
 	int cnt = 0;
 	for (i = 0 ; i < psigBits(r); ++i) {
-		if (bitIsSet(bp, i)) {
+		if (bitIsSet(retp, i)) {
 		    int bpid = i / maxBsigsPP(r), offset = i % maxBsigsPP(r);
 		    if (bpid != preid) {
 		    	if (currp != NULL) {
@@ -237,12 +230,12 @@ PageID addToRelation(Reln r, Tuple t)
 			freeBits(curr);
 		}
 	}
-	// printf("%d\n", cnt);
+	
 	if (currp != NULL) {
 		putPage(r->bsigf, preid, currp);
 	}
-	freeBits(bp);
-	free(bsigp);
+	freeBits(retp);
+	
 	return nPages(r)-1;
 }
 
