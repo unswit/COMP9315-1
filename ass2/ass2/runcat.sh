@@ -1,5 +1,5 @@
 rm R.bsig R.data R.in R.info R.psig R.tsig
-time ./create R simc 10100 4 1000
+time ./create R catc 10100 4 1000
 time ./gendata 10000 4 7654321 23 > R.in
 time ./insert R < R.in
 ./stats R

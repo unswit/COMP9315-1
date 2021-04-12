@@ -234,6 +234,7 @@ PageID addToRelation(Reln r, Tuple t)
 	if (currp != NULL) {
 		putPage(r->bsigf, preid, currp);
 	}
+	
 	freeBits(retp);
 	
 	return nPages(r)-1;

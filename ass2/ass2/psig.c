@@ -11,6 +11,7 @@
 
 static Bits codeword(char *attr_val, int m, int k) {
     Bits ret = newBits(m);
+    if (k > m) k = m;
 	//unsetAllBits(ret);
 	if (attr_val == NULL || strlen(attr_val) == 0 || attr_val[0] == '?') return ret;
 	int  nbits = 0;   // count of set bits
@@ -43,7 +44,7 @@ Bits makePageSig(Reln r, Tuple t)
 		int currbit = 0;
 		for (i = 0 ; i < nAttrs(r); ++i) {
 			int x = mp / nAttrs(r) + (i == 0 ? mp % nAttrs(r) : 0);
-			Bits curr = codeword(vals[i], x, iceil(x, (2 * maxTupsPP(r))));
+			Bits curr = codeword(vals[i], x, iceil(x, (2 * maxTupsPP(r))) - 1);
 			for (j = 0 ; j < x; ++j) {
 				if (bitIsSet(curr, j)) setBit(ret, currbit);
 				currbit++;
