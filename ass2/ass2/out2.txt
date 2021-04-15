@@ -1,0 +1,199 @@
+./stats R
+Global Info:
+Dynamic:
+  #items:  tuples: 10000  tsigs: 10000  psigs: 104  bsigs: 5584
+  #pages:  tuples: 104  tsigs: 20  psigs: 21  bsigs: 20
+Static:
+  tups   #attrs: 4  size: 42 bytes  max/page: 97
+  sigs  catc
+  tsigs  size: 64 bits (8 bytes)  max/page: 511
+  psigs  size: 5584 bits (698 bytes)  max/page: 5
+  bsigs  size: 112 bits (14 bytes)  max/page: 292
+./select R '7663852,?,?,?'
+7663852,ivUryYVexVPJQFjhHxea,a3-069,a4-235
+Query Stats:
+# sig pages read:    0
+# signatures read:   0
+# data pages read:   104
+# tuples examined:   10000
+# false match pages: 103
+./select R '7663852,?,?,?' t
+7663852,ivUryYVexVPJQFjhHxea,a3-069,a4-235
+Query Stats:
+# sig pages read:    20
+# signatures read:   10000
+# data pages read:   2
+# tuples examined:   194
+# false match pages: 1
+./select R '7663852,?,?,?' p
+7663852,ivUryYVexVPJQFjhHxea,a3-069,a4-235
+Query Stats:
+# sig pages read:    21
+# signatures read:   104
+# data pages read:   1
+# tuples examined:   97
+# false match pages: 0
+./select R '7663852,?,?,?' b
+7663852,ivUryYVexVPJQFjhHxea,a3-069,a4-235
+Query Stats:
+# sig pages read:    5
+# signatures read:   8
+# data pages read:   1
+# tuples examined:   97
+# false match pages: 0
+./select R '7664096,PjZZsBYoEYAMzgpCgRKg,?,?'
+7664096,PjZZsBYoEYAMzgpCgRKg,a3-064,a4-147
+Query Stats:
+# sig pages read:    0
+# signatures read:   0
+# data pages read:   104
+# tuples examined:   10000
+# false match pages: 103
+./select R '7664096,PjZZsBYoEYAMzgpCgRKg,?,?' t
+7664096,PjZZsBYoEYAMzgpCgRKg,a3-064,a4-147
+Query Stats:
+# sig pages read:    20
+# signatures read:   10000
+# data pages read:   1
+# tuples examined:   97
+# false match pages: 0
+./select R '7664096,PjZZsBYoEYAMzgpCgRKg,?,?' p 
+7664096,PjZZsBYoEYAMzgpCgRKg,a3-064,a4-147
+Query Stats:
+# sig pages read:    21
+# signatures read:   104
+# data pages read:   1
+# tuples examined:   97
+# false match pages: 0
+./select R '7664096,PjZZsBYoEYAMzgpCgRKg,?,?' b
+7664096,PjZZsBYoEYAMzgpCgRKg,a3-064,a4-147
+Query Stats:
+# sig pages read:    8
+# signatures read:   16
+# data pages read:   1
+# tuples examined:   97
+# false match pages: 0
+./select R '?,?,a3-242,a4-242'
+7654563,kGdSycHkVRpBAXbPMwIq,a3-242,a4-242
+7655559,jLsUNyUuDtJxeUirkvXJ,a3-242,a4-242
+7656555,VngPhvobyzwypmiERBNG,a3-242,a4-242
+7657551,RuFFnNlYxQHYbYatRfNZ,a3-242,a4-242
+7658547,bsIHFFHQiGXiRIZLRGdt,a3-242,a4-242
+7659543,jWMPpkazbXZEsmZfuADc,a3-242,a4-242
+7660539,ecSinUcJGqXsvSRleEda,a3-242,a4-242
+7661535,CruzuxQXYSqCctqvDzFW,a3-242,a4-242
+7662531,lRibeHIcdoIPurlWusYu,a3-242,a4-242
+7663527,DxQAAntFsMFLfUXzeGGh,a3-242,a4-242
+Query Stats:
+# sig pages read:    0
+# signatures read:   0
+# data pages read:   104
+# tuples examined:   10000
+# false match pages: 94
+./select R '?,?,a3-242,a4-242' t
+7654563,kGdSycHkVRpBAXbPMwIq,a3-242,a4-242
+7655559,jLsUNyUuDtJxeUirkvXJ,a3-242,a4-242
+7656555,VngPhvobyzwypmiERBNG,a3-242,a4-242
+7657551,RuFFnNlYxQHYbYatRfNZ,a3-242,a4-242
+7658547,bsIHFFHQiGXiRIZLRGdt,a3-242,a4-242
+7659543,jWMPpkazbXZEsmZfuADc,a3-242,a4-242
+7660539,ecSinUcJGqXsvSRleEda,a3-242,a4-242
+7661535,CruzuxQXYSqCctqvDzFW,a3-242,a4-242
+7662531,lRibeHIcdoIPurlWusYu,a3-242,a4-242
+7663527,DxQAAntFsMFLfUXzeGGh,a3-242,a4-242
+Query Stats:
+# sig pages read:    20
+# signatures read:   10000
+# data pages read:   10
+# tuples examined:   970
+# false match pages: 0
+./select R '?,?,a3-242,a4-242' p
+7654563,kGdSycHkVRpBAXbPMwIq,a3-242,a4-242
+7655559,jLsUNyUuDtJxeUirkvXJ,a3-242,a4-242
+7656555,VngPhvobyzwypmiERBNG,a3-242,a4-242
+7657551,RuFFnNlYxQHYbYatRfNZ,a3-242,a4-242
+7658547,bsIHFFHQiGXiRIZLRGdt,a3-242,a4-242
+7659543,jWMPpkazbXZEsmZfuADc,a3-242,a4-242
+7660539,ecSinUcJGqXsvSRleEda,a3-242,a4-242
+7661535,CruzuxQXYSqCctqvDzFW,a3-242,a4-242
+7662531,lRibeHIcdoIPurlWusYu,a3-242,a4-242
+7663527,DxQAAntFsMFLfUXzeGGh,a3-242,a4-242
+Query Stats:
+# sig pages read:    21
+# signatures read:   104
+# data pages read:   12
+# tuples examined:   1164
+# false match pages: 2
+./select R '?,?,a3-242,a4-242' b
+7654563,kGdSycHkVRpBAXbPMwIq,a3-242,a4-242
+7655559,jLsUNyUuDtJxeUirkvXJ,a3-242,a4-242
+7656555,VngPhvobyzwypmiERBNG,a3-242,a4-242
+7657551,RuFFnNlYxQHYbYatRfNZ,a3-242,a4-242
+7658547,bsIHFFHQiGXiRIZLRGdt,a3-242,a4-242
+7659543,jWMPpkazbXZEsmZfuADc,a3-242,a4-242
+7660539,ecSinUcJGqXsvSRleEda,a3-242,a4-242
+7661535,CruzuxQXYSqCctqvDzFW,a3-242,a4-242
+7662531,lRibeHIcdoIPurlWusYu,a3-242,a4-242
+7663527,DxQAAntFsMFLfUXzeGGh,a3-242,a4-242
+Query Stats:
+# sig pages read:    8
+# signatures read:   16
+# data pages read:   12
+# tuples examined:   1164
+# false match pages: 2
+./select R '8765432,?,?,?'
+Query Stats:
+# sig pages read:    0
+# signatures read:   0
+# data pages read:   104
+# tuples examined:   10000
+# false match pages: 104
+./select R '8765432,?,?,?' t
+Query Stats:
+# sig pages read:    20
+# signatures read:   10000
+# data pages read:   0
+# tuples examined:   0
+# false match pages: 0
+./select R '8765432,?,?,?' p
+Query Stats:
+# sig pages read:    21
+# signatures read:   104
+# data pages read:   0
+# tuples examined:   0
+# false match pages: 0
+./select R '8765432,?,?,?' b
+Query Stats:
+# sig pages read:    5
+# signatures read:   8
+# data pages read:   0
+# tuples examined:   0
+# false match pages: 0
+./select R '7664096,tRzgWRUlUEdoYPZjofYr,?,?'
+Query Stats:
+# sig pages read:    0
+# signatures read:   0
+# data pages read:   104
+# tuples examined:   10000
+# false match pages: 104
+./select R '7664096,tRzgWRUlUEdoYPZjofYr,?,?' t
+Query Stats:
+# sig pages read:    20
+# signatures read:   10000
+# data pages read:   0
+# tuples examined:   0
+# false match pages: 0
+./select R '7664096,tRzgWRUlUEdoYPZjofYr,?,?' p
+Query Stats:
+# sig pages read:    21
+# signatures read:   104
+# data pages read:   0
+# tuples examined:   0
+# false match pages: 0
+./select R '7664096,tRzgWRUlUEdoYPZjofYr,?,?' b
+Query Stats:
+# sig pages read:    8
+# signatures read:   16
+# data pages read:   0
+# tuples examined:   0
+# false match pages: 0
