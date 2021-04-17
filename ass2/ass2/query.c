@@ -64,6 +64,7 @@ void scanAndDisplayMatchingTuples(Query q)
 		if (!bitIsSet(q->pages, i)) continue;
 		File f = dataFile(q->rel);
 		Page current = getPage(f, i);
+		q->curpage = i;
 		// printf("%d\n", pageNitems(current));
 		for (j = 0 ; j < pageNitems(current); ++j) {
 			Tuple tp = getTupleFromPage(q->rel, current, j);

@@ -29,7 +29,6 @@ static Bits codeword(char *attr_val, int m, int k) {
 Bits makePageSig(Reln r, Tuple t)
 {
 	assert(r != NULL && t != NULL);
-	// the idea here is [(tuple signature for tuple 0), (tuple signature for tuple 1)...]
 	int i, j, mp = psigBits(r), k = codeBits(r);
 	char **vals = tupleVals(r, t);
 	Bits ret = newBits(mp);

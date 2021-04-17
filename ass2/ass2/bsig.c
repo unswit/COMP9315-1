@@ -25,11 +25,10 @@ void findPagesUsingBitSlices(Query q)
 			}
 			Page p = getPage(q->rel->bsigf, pid);
 			Bits cur = newBits(bsigBits(q->rel));
-			// get the bit slice if the query signature vas this bit set to 1
+			// get the bit slice if the query signature has this bit set to 1
 			getBits(p, offset, cur);
 			// we increment the number of signature read by 1
 		    q->nsigs++;
-			// we do the and operation to q->pages, note that the size are different
 			for (j = 0 ; j < nPages(q->rel); ++j) {
 				if (!bitIsSet(cur, j)) unsetBit(q->pages, j);
 			}
