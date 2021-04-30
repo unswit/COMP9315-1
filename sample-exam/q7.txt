@@ -1,0 +1,20 @@
+# COMP9315 20T1 Sample Exam Q7
+
+Type your answer(s) to replace the xxx's
+
+(a) cost of simple hash join with 10 memory buffers
+
+if we use simple hash join, only 7 memory buffers can be used to hold R
+If we have uniform distribution, the cost on read for R = 100
+the number of rounds for the join = ceil(100 / 7) = 15
+Total cost = 15 * 500 + 100 = 7600
+
+
+(b) cost of hybrid hash join with 21 memory buffers
+1 used for input and 1 used for output of partition 0
+assume we have 10 partitions, 9 written to disk and 1 hold in memory
+Then, phase 1 would read 100 R pages and 500 S pages, which 90 R pages and 450 S pages moves to phase 2.
+Hence, total cost = 100 + 500 + 2 * (90 + 450) = 1680
+
+
+

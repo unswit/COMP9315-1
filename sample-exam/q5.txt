@@ -1,0 +1,28 @@
+# COMP9315 20T1 Sample Exam Q5
+
+Type your answer(s) to replace the xxx's
+
+
+(a) At least three different join orders ...
+
+(R join S) join T
+R join (S join T)
+(R join T) join S
+
+
+(b) Which join order is most efficient ...
+consider after the selection: R has 1 page (1 tuple), S has half the S page and T has the full page
+best way to evaluate R join S would be block nested loop join with R as the outer Relational
+best way of evaluate R join T is also block nested loop join with R as the outer Relational
+Thus, (R join T) join S would be the most efficient, because R join T produce only 1 result tuple because
+R's tid is a foreign key that references T's id. Since there's only 1 R tuple, there's only 1 R join T tuples as well.
+Assume there's a hash index on T's id field, this cost would be 1 + 1
+After that, we join S, (R join T) can fit into the buffer pool, we use blocked nested loop join for this and the overall
+cost is at most 1 + 1 + #Bs/2
+
+
+(c) Relational algebra statements for join plan ...
+t1 = sel[rval = 'abc'](R)
+t2 = sel[sval < 'xyz'](S)
+t3 = t1 join[t1.tid = T.id] T
+result = t3 join[t3.sid = t2.id] t2

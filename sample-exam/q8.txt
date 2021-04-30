@@ -1,0 +1,30 @@
+# COMP9315 20T1 Sample Exam Q8
+
+Type your answer(s) to replace the xxx's
+
+(a) locking operations for two-phase locking
+
+T1:  Lw(X) Lr(Y) R(X)  R(Y)  W(X)  W(Y) U(X) U(Y)
+T2:  Lw(X) Lr(Y) W(X)  R(Y)  U(X)  U(Y)
+T3:  Lw(Y) Lr(X) R(Y)  R(X)  W(Y)  U(X) U(Y)
+
+
+(b) example schedule produced by (a)
+T1:  Lw(X) Lr(Y) R(X)  R(Y)  W(X)  W(Y) U(X)      U(Y)
+T2:                                         Lw(X)      Lr(Y) W(X) R(Y)  U(X)       U(Y)
+T3:                                                                          Lr(X)      Lw(Y) R(Y)  R(X)  W(Y)  U(X) U(Y)
+
+
+(c) locking operations that are *not* two-phase
+
+T1:  Lw(X) Lr(Y) R(X)  R(Y)  W(X)  W(Y) U(X) U(Y)
+T2:  Lw(X) W(X)  U(X)  Lr(Y) R(Y)  U(Y)
+T3:  Lw(Y) Lr(X) R(Y)  R(X)  W(Y)  U(X) U(Y)
+
+
+(d) example schedule produced by (c)
+
+T1:  Lw(X) Lr(Y) R(X)  R(Y)  W(X)  W(Y) U(X)                   U(Y)
+T2:                                         Lw(X)  W(X)  U(X)                                                Lr(Y) R(Y)  U(Y)
+T3:                                                                  Lw(Y) Lr(X) R(Y)  R(X)  W(Y)  U(X) U(Y)
+

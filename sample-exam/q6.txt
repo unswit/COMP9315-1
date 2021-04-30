@@ -1,0 +1,72 @@
+# COMP9315 20T1 Sample Exam Q6
+
+Type your answer(s) to replace the xxx's
+
+
+(a) Likely number of result tuples for ...
+
+
+(i) select * from R where a = 5;
+
+1000 / 16 = 62 or 63
+
+(ii) select * from R where b = 'green';
+
+1000 / 8 = 125
+
+(iii) select * from R where c > 80;
+
+1000 / 100 * 20 = 200
+
+(iv) select * from R where a is null;
+
+since a is not null, total number of tuples is 0
+
+
+(b) Design of MAH scheme (bit allocation) ...
+
+
+(i) number of hash bits required
+
+log2(128) = 7
+
+(ii) maximum hash bits for each attribute
+
+since there are 16 possible values for a, maximum bits is 4
+8 possible values for b, maximum bits is 3,
+100 possible values for c, maximum bits is ceil(log2(100)) = 7
+
+(iii) min cost allocation of hash bits to attributes
+-------------------------------------------------------------
+Q1:   select * from R where a = k,     PQ1 = 0.3
+Q2:   select * from R where b = j,     PQ2 = 0.2
+Q3:   select * from R where a = k and b = j,     PQ3 = 0.3
+Q4:   select * from R where b = j and c = m,     PQ4 = 0.2
+-------------------------------------------------------------
+
+a + b + c = 7
+and cost1 = 2^(b + c) * 0.3
+    cost2 = 2^(a + c) * 0.2
+    cost3 = 2^c * 0.3
+    cost4 = 2^a * 0.2
+we want to minimize 2^(b+c)*0.3 + 2^(a + c) * 0.2 + 2^c * 0.3 + 2^a * 0.2
+
+we let this python script to do the job
+
+val = 10000
+ret = [-1,-1,-1]
+for a in range(0, 8):
+    for b in range(0, 8):
+        for c in range(0, 8):
+            if a + b + c != 7:
+                continue
+            if val > 2**(b+c)*0.3 + 2**(a + c) * 0.2 + 2**c * 0.3 + 2**a * 0.2:
+                val = 2**(b+c)*0.3 + 2**(a + c) * 0.2 + 2**c * 0.3 + 2**a * 0.2
+                ret = [a, b, c]
+print(ret)
+
+and we get a = 3 bits, b = 4 bits, c = 0 bits
+
+
+(iv) weighted average query cost for allocation
+total average weight cost = 8.3

@@ -1,0 +1,33 @@
+# COMP9315 20T1 Sample Exam Q3
+
+Type your answer(s) to replace the xxx's
+
+
+(a) number of tuples per page in People table
+
+each tuple need 1 bit + 32 bytes = 32 + 1/8 bytes
+Total number of tuples per page = 4096 / (32 + 1/8) = 127
+
+
+(b) number of pages in People table
+
+number of pages = ceil(1234567/127) = 9721
+
+
+(c) cost of duplicate removal using sorting
+
+we need to firstly sort the relation, and then run a single pass for duplicate elimination
+sort cost = 2 * 9721 * (1 + ceil(log100(ceil(9721/101)))) = 38884
+scan cost = 9721
+total = 48605
+
+(d) cost of duplicate removal using hashing
+Since there are 101 buffers, we use 100 partitions, then each partition occupies ceil(9721 / 100) = 98 pages
+Hence, total cost = 2 * (98 * 100) + 9721 = 29321
+
+
+(e) effect on hashing if only 91 buffers available
+This would cause trouble, because 90*90 < 9721, which means each partition cannot be completely fix into buffer bool,
+we can repeat the partition phase again, partition the pages into even smaller partitions and then do the duplicate elimination.
+
+

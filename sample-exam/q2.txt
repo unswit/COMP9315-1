@@ -1,0 +1,42 @@
+# COMP9315 20T1 Sample Exam Q2
+
+Type your answer(s) to replace the xxx's
+
+(a) catalog tuples produced for CREATE TYPE Gender ...
+
+pg_attribute table: no change at all
+pg_class(oid, relname, relkind, relnatts, relhaspkey, relhasindex): no change at all
+pg_index: no change at all
+
+pg_enum(enumtypid, enumlabel): 3 records are inserted:
+(16918, "male")
+(16918, "female")
+(16918, "none of your business")
+
+pg_type(oid, typname, typtype, typisdefined, typrelid): 1 record is inserted
+(16918, 'Gender', 'e', true, 0)
+
+(b) catalog tuples produced for CREATE TABLE People ...
+pg_enum(enumtypid, enumlabel): no change at all
+
+pg_type(oid, typname, typtype, typisdefined, typrelid): 1 record inserted
+(16927, people, true, 16925)
+
+pg_attribute(attrelid, attname, atttypid, attlen, attnum, attnotnull): we ignore the xmin, xmax things, 3 records inserted
+(16925, 'id', X, 4, 1, true)
+(16925, 'name', Y, -1, 2, true)
+(16925, 'sex', 16918, 4, 3, false)
+> note that the primary key also need to be considered
+
+pg_index(indexrelid, indrelid, indnatts, indisunique, indisprimary): 1 record inserted
+(16931, 16925, 1, true, true)
+
+pg_class(oid, relname, relkind, relnatts, relhaspkey, relhasindex): 2 record inserted, one is the "table", one is the primary key
+(16925, 'people', 'r', 3, true, true)
+(16931, 'people_pkey', 'i', 1, false, false)
+
+
+
+
+
+
