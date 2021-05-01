@@ -1,0 +1,28 @@
+a) select * from R where c = 'red'
+
+1000 * 50% = 500
+
+b) select distinct(b) from R
+
+2
+
+c) select max(a) from R where a % 2 <> 0
+
+Total number of tuples is 1.
+
+d) select * from S where x ≥ 112111
+
+(113110 - 112111 + 1) / (113110 - 111111 + 1) * 2000 = 1000	
+
+e) select * from S where y > 13345
+
+no result
+
+f) select * from S join R on (S.y=R.a)
+
+each S must match 1 R, hence 2000
+
+g) select * from R left outer join S on (R.a=S.y)
+
+2000 + 500 = 2500
+

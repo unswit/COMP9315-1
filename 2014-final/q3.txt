@@ -1,0 +1,95 @@
+create table Students (
+	sid     integer,     -- 4 bytes
+	name    varchar(30), -- average length 20 bytes (incl padding)
+	bday    date,        -- 4 bytes
+	degree  char(4),     -- 4 bytes
+	primary key (id)
+);
+create table Courses (
+	cid     integer,     -- 4 bytes
+	code    char(8),     -- 8 bytes
+	term    char(4),     -- 4 bytes
+	title   varchar(40), -- average length 24 bytes (incl padding)
+	primary key (cid)
+);
+create table Enrolments (
+	course  integer,     -- 4 bytes
+	student integer,     -- 4 bytes
+	mark    integer,     -- 4 bytes
+	grade   char(2),     -- 4 bytes (with padding)
+	foreign key (course) references Courses(cid),
+	foreign key (student) references Students(sid)
+);
+
+there are 5000 students, 1000 courses and 20000 enrolment records
+each page is 4kB
+
+a)
+Compute the tuple size (R), page capacity (c) and number of pages (b)for each table.
+
+For the students table,
+R = 4 + 20 + 4 + 4 = 32
+C = 4096 / 32 = 128
+B = 40
+
+For the courses table,
+R = 4 + 8 + 4 + 24 = 40
+C = 4096 / 40 = 102
+B = 1000 / 102 = 10
+
+For the enrolments table,
+R = 16
+C = 4096 / 16 = 256
+B = 20000 / 256 = 79
+
+b)
+Tmp1 = Join[cid=course](Courses,Enrolments)
+Tmp2 = Join[sid=student](Student,Tmp1)
+Tmp3 = Sel[code=9315&term=14s2](Tmp2)
+Tmp4 = Proj[sid,name](Tmp3)
+Res  = Sort(Tmp4)
+
+step 1: join courses and enrolments, courses is the outer relation, enrolments is the inner relation,
+blocked nested loop join cost = 10 + 10 / 1 * 79 = 800
+number of result tuples = 20000
+size of 1 result tuple = 40 + 16 = 56
+hence number tuples per result page = 73, number of page write = 20000 / 73 = 274
+
+cost for step 1 = 1074
+
+
+step 2: join the result table and student table
+blocked nested loop join, student is the outer relation cost = 40 + 40 / 1 * 274 = 11000
+number of result tuples = 20000
+size of 1 result tuple = 56 + 32 = 88
+number of tuples per result page = 46, number of page write = 435
+cost of step 2 = 11000 + 435 = 11435
+
+step 3: select number of enrolments in COMP9315, 14s2
+page read = 435
+number of result tuples = 70, size of tuple = 88
+number of pages required = 2
+page write = 2
+total cost of step 3 = 437
+
+step 4: projection 
+read pages 2
+size of each tuple = 24 bytes, number of pages required = 1
+page write = 1
+total cost of step 4 = 3
+
+step 5: Sort
+cost = 2 * 1 = 2
+
+total cost = 12951
+
+c) 
+Tmp3 = Sel[code=9315&term=14s2](Courses)
+Tmp1 = Join[cid=course](Tmp3,Enrolments)
+Tmp2 = Join[sid=student](Student,Tmp1)
+Tmp4 = Proj[sid,name](Tmp2)
+Res  = Sort(Tmp4)
+
+Since projection first would make the course table much smaller than before, when
+there might be chances that the course table can be fit in the buffers and the cost of nexted loop join
+would be reduced

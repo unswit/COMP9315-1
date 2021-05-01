@@ -1,0 +1,29 @@
+a)
+i) Is there a Courses tuple with id 1234?
+No, from row=0 in the actual part.
+
+ii) What is the total number of Courses tuples?
+979 + 1 = 980
+
+iii) What is the difference in how the two queries are evaluated?
+The first query is a primary key type query, since there's an hash index build on primary key, it use index scan;
+there's no index build on course code, hence the second query is sequencial scan
+
+iv) Which query is the more efficient?
+The first query is more efficient (from run time)
+
+b)
+i) get the number of assessment items for each course that has at least 1 assessment item, order by this count in descending order
+ii) No, it can be seen from quicksort
+
+c) 
+i) there are 3 students
+ii) 
+People(id,title,family,given,address,gender,birthday,country)
+Courses(id,code,title,uoc,convenor)
+Enrolments(course,student,mark,grade)
+-- aim find all students that fail the course SOMA1641, display field Student.id, Student.family, Enrolments.mark, Enrolments.grade
+
+select s.id, s.family, e.mark, e.grade
+from people as s, courses as c, enrolments as e
+where s.id = e.student and c.id = e.course and c.code = 'SOMA1641' and e.grade = 'FL';

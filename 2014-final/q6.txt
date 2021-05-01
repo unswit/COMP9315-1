@@ -1,0 +1,84 @@
+split every 5 insertions, page capacity = 3
+Key	h(Key)
+A	...1010
+B	...0011
+C	...1110
+D	...1001
+E	...0000
+Key	h(Key)
+F	...1110
+G	...0001
+H	...0100
+I	...1100
+J	...1101
+Key	h(Key)
+K	...1111
+L	...0000
+M	...1010
+N	...0101
+O	...1100
+Key	h(Key)
+P	...0101
+Q	...1010
+R	...0111
+S	...1000
+T	...1110
+
+a) immediately before the insert(E) request is received
+d = 1, sp = 0
+[0] A,C
+[1] B,D
+
+b) immediately after the insertion of E
+we need a split
+d = 1, sp = 1
+[00] E 
+[1] B, D
+[10] A, C
+
+c) immediately before the insert(J) request is received
+d = 1, sp = 1
+[00] E, H, I 
+[1] B, D, G
+[10] A, C, F
+
+
+d) immediately after the insertion of J
+d = 2, sp = 0
+[00] E, H, I
+[01] D, G, J
+[10] A, C, F
+[11] B
+
+e) immediately before the insert(O) request is received
+d = 2, sp = 0
+[00] E, H, I -> L
+[01] D, G, J -> N
+[10] A, C, F -> M
+[11] B, K 
+
+f) immediately after the insertion of O
+d = 2, sp = 1
+[000] E, L
+[01] D, G, J -> N
+[10] A, C, F -> M
+[11] B, K
+[100] H, I, O
+
+g) immediately before the insert(T) request is received
+d = 2, sp = 1
+[000] E, H, L -> S
+[01] D, G, J -> N, P
+[10] A, C, F -> M, Q
+[11] B, K, R
+[100] I, O
+
+h) immediately after the insertion of T
+d = 2, sp = 2
+[000] E, L -> S
+[001] D, G
+[10] A, C, F -> M, Q, T
+[11] B, K, R
+[100] H, I, O
+[101] J, N, P
+

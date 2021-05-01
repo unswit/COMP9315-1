@@ -1,0 +1,29 @@
+t0    t1     t2     t3     t4     t5     t6
+T1:   R(X)          W(X)          Commit
+T2:          W(X)          Commit
+
+a) Is the schedule conflict serializable?
+
+T1<--->T2, No, there's a cycle
+
+b) Is the schedule view serializable?
+T1->T2, T1 do the initial read, T2 make the final write which is incorrect
+T2->T1, T1 did not do the initial read, which is incorrect
+Hence, not view serializable
+
+c) for each of the time-points t0, t1, t2, t3, show the versions of X that exist and show their RTS and WTS values
+t0    t1     t2     t3     t4     t5     t6
+T1:   R(X)          W(X)          Commit
+T2:          W(X)          Commit
+
+TS(T1) = t1, TS(T2) = t2, WTS(X) = RTS(X) = t0
+hence, we got
+         t0     t1    t2   t3  
+T1(X)    1      1     1    10   
+T2(X)    1      1     5    5         
+WTS(X)   t0     t0    t2   t3
+RTS(X)   t0     t1    t1   t1
+
+d) X = 5, at the time T1 writes X at t3, we met a case when there's a later version, T1 should be aborted
+
+e) this would break the invariant of MVCC and the following read is no longer valid.

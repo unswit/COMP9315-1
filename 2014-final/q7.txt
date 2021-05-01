@@ -1,0 +1,18 @@
+a) How many pages are accessed in answering queries of type Q1?
+2^4 = 16
+
+b) How many pages are accessed in answering queries of type Q2?
+2^6 = 64
+
+c) How many pages are accessed in answering queries of type Q3?
+2^2 = 4
+
+d) How many pages are accessed in answering queries of type Q4?
+2^4 = 16
+
+e) How many pages are accessed in answering queries of type Q5?
+2^2 = 4
+
+f) What is the weighted average cost of answering a query on this relation?
+16 * 0.3 + 64 * 0.2 + 4 * 0.2 + 16 * 0.1 + 4 * 0.2 = 20.8
+

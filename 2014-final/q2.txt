@@ -1,0 +1,26 @@
+a)
+
+create table Product (
+	id         int,
+	name       char(25),
+	colour     char(10),
+	cost       float,
+	barcode    char(13),
+	released   date,
+	primary key(id)
+);
+
+4 + 25 + 10 + (1) + 4 + 13 + (3) + 4 = 64 bytes
+
+b)
+
+4096 / (64 + 1/8) = 63 tuples
+
+c)
+
+63 * 0.9 = 56 tuples per page
+total page = ceil(10000 / 56) = 179 pages
+
+d)
+if there are 100 data pages, each page would have 100 tuples,
+then the load factor would be 100 / 63 = 159%
